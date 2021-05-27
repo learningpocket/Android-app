@@ -1,11 +1,17 @@
 import 'package:chat_app_tutorial/services/auth.dart';
+import 'package:chat_app_tutorial/services/database.dart';
 import 'package:chat_app_tutorial/views/chatrooms.dart';
 import 'package:chat_app_tutorial/widget/widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 
 
 class SignUp extends StatefulWidget {
+
+  final Function toggleView;
+  SignUp(this.toggleView);
+
   @override
   _SignUpState createState() => _SignUpState();
 }
@@ -14,6 +20,9 @@ class _SignUpState extends State<SignUp> {
 
   final formKey = GlobalKey<FormState>();
   AuthService authService = new AuthService();
+  DatabaseMethods databaseMethods = new DatabaseMethods();
+
+
   bool isLoading = false;
 
   TextEditingController emailEditingController = new TextEditingController();
@@ -27,8 +36,15 @@ class _SignUpState extends State<SignUp> {
       });
       authService.signUpWithEmailAndPassword(emailEditingController.text,
           passwordEditingController.text).then((val) {
-            print("${val.uid}");
+            // print("${val.uid}");
 
+        Map<String,String> userDataMap = {
+          "userName" : usernameEditingController.text,
+          "userEmail" : emailEditingController.text
+        };
+
+
+        databaseMethods.addUserInfo(userDataMap);
 
             Navigator.pushReplacement(context, MaterialPageRoute(
                 builder: (context) => ChatRoom()
@@ -132,11 +148,19 @@ class _SignUpState extends State<SignUp> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text("Already have account? ", style: biggerTextStyle(),),
-                      Text("Signin now", style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 17,
-                          decoration: TextDecoration.underline
-                      )),
+                      GestureDetector(
+                        onTap: (){
+                          widget.toggleView();
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Text("Signin now", style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              decoration: TextDecoration.underline
+                          )),
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 150,),

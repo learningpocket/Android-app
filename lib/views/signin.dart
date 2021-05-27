@@ -2,6 +2,13 @@ import 'package:chat_app_tutorial/widget/widget.dart';
 import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
+
+
+  final Function toggleView;
+
+  SignIn(this.toggleView);
+
+
   @override
   _SignInState createState() => _SignInState();
 }
@@ -13,7 +20,7 @@ class _SignInState extends State<SignIn> {
       appBar: appBarMain(context),
        body: SingleChildScrollView(
          child: Container(
-           height: MediaQuery.of(context).size.height - 50,
+           height: MediaQuery.of(context).size.height,
            alignment: Alignment.bottomCenter,
            child: Container(
              padding: EdgeInsets.symmetric(horizontal: 24),
@@ -37,20 +44,25 @@ class _SignInState extends State<SignIn> {
                    ),
                  ),
                  SizedBox(height: 8,),
-                 Container(
-                   alignment: Alignment.center,
-                   width: MediaQuery.of(context).size.width,
-                   padding: EdgeInsets.symmetric(vertical: 20),
-                   decoration: BoxDecoration(
-                     gradient: LinearGradient(
-                       colors: [
-                         const Color(0xff007EF4),
-                         const Color(0xff2A75BC)
-                       ],
+                 GestureDetector(
+                   onTap: (){
+
+                   },
+                   child: Container(
+                     alignment: Alignment.center,
+                     width: MediaQuery.of(context).size.width,
+                     padding: EdgeInsets.symmetric(vertical: 20),
+                     decoration: BoxDecoration(
+                       gradient: LinearGradient(
+                         colors: [
+                           const Color(0xff007EF4),
+                           const Color(0xff2A75BC)
+                         ],
+                       ),
+                       borderRadius: BorderRadius.circular(30)
                      ),
-                     borderRadius: BorderRadius.circular(30)
+                     child: Text("Sign in", style: biggerTextStyle()),
                    ),
-                   child: Text("Sign in", style: biggerTextStyle()),
                  ),
                  SizedBox(height: 16,),
                  Container(
@@ -71,11 +83,19 @@ class _SignInState extends State<SignIn> {
                    mainAxisAlignment: MainAxisAlignment.center,
                    children: [
                      Text("Don't have account? ", style: biggerTextStyle(),),
-                     Text("Register now", style: TextStyle(
-                       color: Colors.white,
-                       fontSize: 17,
-                       decoration: TextDecoration.underline
-                     )),
+                     GestureDetector(
+                       onTap: (){
+                         widget.toggleView();
+                       },
+                       child: Container(
+                         padding: EdgeInsets.symmetric(vertical: 8),
+                         child: Text("Register now", style: TextStyle(
+                           color: Colors.white,
+                           fontSize: 17,
+                           decoration: TextDecoration.underline
+                         )),
+                       ),
+                     ),
                    ],
                  ),
                  SizedBox(height: 150,),
