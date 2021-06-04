@@ -1,4 +1,3 @@
-
 import 'package:chat_app_tutorial/views/signin.dart';
 import 'package:chat_app_tutorial/views/signup.dart';
 import 'package:flutter/material.dart';

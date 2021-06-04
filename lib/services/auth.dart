@@ -1,55 +1,64 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chat_app_tutorial/models/user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  User _userFromFirebaseUser(FirebaseUser user) {
-    return user != null ? User(uid: user.uid) : null;
+class DatabaseMethods {
+  Future<void> addUserInfo(userData) async {
+    Firestore.instance.collection("users").add(userData).catchError((e) {
+      print(e.toString());
+    });
   }
 
-  Future signInWithEmailAndPassword(String email, String password) async {
-    try {
-      AuthResult result = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
-      FirebaseUser user = result.user;
-      return _userFromFirebaseUser(user);
-    } catch (e) {
+  getUserInfo(String email) async {
+    return Firestore.instance
+        .collection("users")
+        .where("userEmail", isEqualTo: email)
+        .getDocuments()
+        .catchError((e) {
       print(e.toString());
-      return null;
-    }
+    });
   }
 
-  Future signUpWithEmailAndPassword(String email, String password) async {
-    try {
-      print(email);
-      AuthResult result = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      FirebaseUser user = result.user;
-
-      return _userFromFirebaseUser(user);
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
+  searchByName(String searchField) {
+    return Firestore.instance
+        .collection("users")
+        .where('userName', isEqualTo: searchField)
+        .getDocuments();
   }
 
-  Future resetPass(String email) async {
-    try {
-      return await _auth.sendPasswordResetEmail(email: email);
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
+  Future<bool> addChatRoom(chatRoom, chatRoomId) {
+    Firestore.instance
+        .collection("chatRoom")
+        .document(chatRoomId)
+        .setData(chatRoom)
+        .catchError((e) {
+      print(e);
+    });
   }
 
-  Future signOut() async {
-    try {
-      return await _auth.signOut();
-    } catch (e) {
+  getChats(String chatRoomId) async{
+    return Firestore.instance
+        .collection("chatRoom")
+        .document(chatRoomId)
+        .collection("chats")
+        .orderBy('time')
+        .snapshots();
+  }
+
+
+  Future<void> addMessage(String chatRoomId, chatMessageData){
+
+    Firestore.instance.collection("chatRoom")
+        .document(chatRoomId)
+        .collection("chats")
+        .add(chatMessageData).catchError((e){
       print(e.toString());
-      return null;
-    }
+    });
+  }
+
+  getUserChats(String itIsMyName) async {
+    return await Firestore.instance
+        .collection("chatRoom")
+        .where('users', arrayContains: itIsMyName)
+        .snapshots();
   }
 
 }

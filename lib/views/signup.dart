@@ -36,7 +36,7 @@ class _SignUpState extends State<SignUp> {
       });
       authService.signUpWithEmailAndPassword(emailEditingController.text,
           passwordEditingController.text).then((val) {
-            // print("${val.uid}");
+        // print("${val.uid}");
 
         Map<String,String> userDataMap = {
           "userName" : usernameEditingController.text,
@@ -46,9 +46,9 @@ class _SignUpState extends State<SignUp> {
 
         databaseMethods.addUserInfo(userDataMap);
 
-            Navigator.pushReplacement(context, MaterialPageRoute(
-                builder: (context) => ChatRoom()
-            ));
+        Navigator.pushReplacement(context, MaterialPageRoute(
+            builder: (context) => ChatRoom()
+        ));
       });
 
     }

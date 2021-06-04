@@ -1,4 +1,9 @@
+import 'package:chat_app_tutorial/helper/helperfunctions.dart';
+import 'package:chat_app_tutorial/services/auth.dart';
+import 'package:chat_app_tutorial/services/database.dart';
+import 'package:chat_app_tutorial/views/chatrooms.dart';
 import 'package:chat_app_tutorial/widget/widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
@@ -14,6 +19,49 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
+
+
+  final formKey = GlobalKey<FormState>();
+  TextEditingController emailEditingController = new TextEditingController();
+  TextEditingController passwordEditingController = new TextEditingController();
+
+  DatabaseMethods databaseMethods = new DatabaseMethods();
+  AuthService authService = new AuthService();
+  bool isLoading = false;
+
+  signIn() async {
+    if (formKey.currentState.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+
+      await authService
+          .signInWithEmailAndPassword(
+          emailEditingController.text, passwordEditingController.text)
+          .then((result) async {
+        if (result != null) {
+          QuerySnapshot userInfoSnapshot =
+          await DatabaseMethods().getUserByEmail(emailEditingController.text);
+
+
+          HelperFunctions.saveUserLoggedInSharedPreference(true);
+          HelperFunctions.saveUserNameSharedPreference(
+              userInfoSnapshot.documents[0].data["userName"]);
+          HelperFunctions.saveUserEmailSharedPreference(
+              userInfoSnapshot.documents[0].data["userEmail"]);
+
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => ChatRoom()));
+        } else {
+          setState(() {
+            isLoading = false;
+            //show snackbar
+          });
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,13 +75,30 @@ class _SignInState extends State<SignIn> {
              child: Column(
                mainAxisSize: MainAxisSize.min,
                children: [
-                 TextField(
-                   style: simpleTextStyle(),
-                   decoration: textFieldInputDecoration("email"),
-                 ),
-                 TextField(
-                   style: simpleTextStyle(),
-                   decoration: textFieldInputDecoration("password"),
+                 Form(
+                   key: formKey,
+                   child: Column(
+                     children: [
+                       TextFormField(
+                         validator: (val){
+                           return RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(val) ?
+                           null : "Enter correct email";
+                         },
+                         controller: emailEditingController,
+                         style: simpleTextStyle(),
+                         decoration: textFieldInputDecoration("email"),
+                       ),
+                       TextFormField(
+                         obscureText: true,
+                         validator:  (val){
+                           return val.length < 6 ? "Enter Password 6+ characters" : null;
+                         },
+                         controller: passwordEditingController,
+                         style: simpleTextStyle(),
+                         decoration: textFieldInputDecoration("password"),
+                       ),
+                     ],
+                   ),
                  ),
                  SizedBox(height: 8,),
                  Container(
@@ -46,7 +111,7 @@ class _SignInState extends State<SignIn> {
                  SizedBox(height: 8,),
                  GestureDetector(
                    onTap: (){
-
+                      signIn();
                    },
                    child: Container(
                      alignment: Alignment.center,
